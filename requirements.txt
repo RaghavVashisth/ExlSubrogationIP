@@ -1,2 +1,3 @@
 streamlit==1.47.0
-pandas==2.2.3git-credential-manager erase https://github.com
+pandas==2.2.3
+plotly==6.2.0
