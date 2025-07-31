@@ -62,16 +62,22 @@ st.markdown("""
 with st.sidebar:
     st.image("exl logo.png", use_container_width=True)
     # selected_screen = st.radio("📁 Navigation", ["📊 Dashboard", "📈 Subrogation KPIs"])
-    selected_screen = st.radio("📁 Navigation", ["📊 Dashboard", "📈 Subrogation KPIs", "📊 Monitoring Dashboard"])
+    selected_screen = st.radio("📁 Navigation", ["📊 Claim Dashboard", "📈 Subrogation KPIs", "📊 Monitoring Dashboard"])
 
 
 # -------------------- Load Data --------------------
-data_path = 'syntheticsubrogationfulldataset_2.csv'
+data_path = 'claims_data.csv'
 
 @st.cache_data(ttl=0)
 def load_data():
     df = pd.read_csv(data_path)
     df['Prediction'] = pd.to_numeric(df['Prediction'], errors='coerce').fillna(0).astype(int)
+    state_group_map = {
+        "Pure": "Pure Comparative Negligence",
+        "Regular": "Contributory Negligence"
+        # "Michigan" is left unchanged
+    }
+    df["STATE_GROUP"] = df["STATE_GROUP"].replace(state_group_map)
     if 'User_Action' not in df.columns:
         df['User_Action'] = ''
     return df
@@ -79,7 +85,7 @@ def load_data():
 df = load_data()
 
 # -------------------- 📊 Dashboard Screen --------------------
-if selected_screen == "📊 Dashboard":
+if selected_screen == "📊 Claim Dashboard":
     st.title("🚨 Subrogation Propensity Claims Review Dashboard")
 
     st.markdown("### 🔎 Filter Claims")
@@ -119,7 +125,7 @@ if selected_screen == "📊 Dashboard":
             with cols[5]: st.markdown(f"**Injury:** {row['INJRY_TYPE_DESC']}")
             with cols[6]: st.markdown(f"**Loss Party:** {row['LOSS_PARTY']}")
             with cols[7]: st.markdown(f"**Severity:** {row['CLM_LOSS_SEVERITY_CD']}")
-            with cols[8]: st.markdown(f"**ML Score:** {row['Prediction']}")
+            with cols[8]: st.markdown(f"**ML Score:** {row['Probability']}")
 
             with cols[9]:
                 selected_action = st.selectbox(
@@ -133,7 +139,7 @@ if selected_screen == "📊 Dashboard":
                 if st.button("💾 Save", key=f"save_{idx}"):
                     df_all = pd.read_csv(data_path)
                     df_all.at[idx, 'User_Action'] = selected_action
-                    df_all.to_csv('claims_data.csv', index=False)
+                    df_all.to_csv(data_path, index=False)
                     st.success(f"✅ Action saved for Claim {row['Claim_Number']}")
 
 # # -------------------- 📈 KPI Screen --------------------
