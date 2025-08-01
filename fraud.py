@@ -89,7 +89,7 @@ if selected_screen == "📊 Claim Dashboard":
     st.title("🚨 Subrogation Propensity Claims Review Dashboard")
 
     st.markdown("### 🔎 Filter Claims")
-    filter_cols = st.columns(3)
+    filter_cols = st.columns(4)
 
     with filter_cols[0]:
         state_filter = st.selectbox('STATE', df['STATE_GROUP'].unique(), key='state_filter')
@@ -100,6 +100,9 @@ if selected_screen == "📊 Claim Dashboard":
     with filter_cols[2]:
         sub_det = st.selectbox("LOB SUB-LOB", df['SUB_DTL_DESC'].unique(), key='sub_det_filter')
 
+
+
+
     filtered_df = df[
         (df['STATE_GROUP'] == state_filter) &
         (df['MAJ_PERIL_CD'] == peril_filter) &
@@ -107,6 +110,19 @@ if selected_screen == "📊 Claim Dashboard":
     ]
 
     suspicious_df = filtered_df[filtered_df['Prediction'] == 1].copy()
+    # Download filtered suspicious claims
+    if not suspicious_df.empty:
+        # st.markdown("### 📥 Download Filtered Claims")
+        download_df = suspicious_df.copy()
+        download_csv = download_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+            label="📥 Download CSV",
+            data=download_csv,
+            file_name=f"suspicious_claims_{state_filter}_{peril_filter}_{sub_det}.csv",
+            mime="text/csv"
+        )
+
+
 
     if suspicious_df.empty:
         st.info("No suspected fraudulent claims found with current filters.")
