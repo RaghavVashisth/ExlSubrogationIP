@@ -406,8 +406,8 @@ elif selected_screen == "📑 Subrogation Workbench":
 
         st.subheader(f"✍️ Edit Demand Letter for Claim {claim_number}")
 
-        At_fault_party_insurance_carrier_name = "Nationwide Mutual Insurance Company"
-        Third_party_insurance_carrier_Address = "Nationwide Plaza, Columbus, Ohio 43215-2220, USA"
+        At_fault_party_insurance_carrier_name = "XYZ Insurance Company"
+        Third_party_insurance_carrier_Address = "XYZ Plaza, Columbus, Ohio 43215-2220, USA"
         Insured_Name = "Reginald Williams"
         Other_Party_insured_name = "Karen Walton"
         Date_of_Loss = "09/15/2022"
@@ -428,19 +428,19 @@ elif selected_screen == "📑 Subrogation Workbench":
 
         Dear {other_party_adjuster_name},
 
-        We represent {Insured_Name}, the automobile insurance carrier for {Insured_Name}.On {Date_of_Loss},
+        We represent {Insured_Name}, the automobile insurance carrier for {Insured_Name}. On {Date_of_Loss},
         your insured, {Other_Party_insured_name} negligently caused a motor vehicle collision 
-        at {claim_details['STATE_GROUP']}.Based on the police report and supporting evidence,your insured
+        at {claim_details['STATE_GROUP']}. Based on the police report and supporting evidence, your insured
         was cited for failure to stop at a red light, thereby establishing liability.
 
         As a result of this incident, {Insured_Name} indemnified our insured for the following damages:
 
         Category                Amount Paid (USD)
         ------------------------------------------------
-        Vehicle Repairs         $1260
+        Vehicle Repairs             $1260
         Rental Car Expenses     $500
-        Towing & Storage        $200
-        Medical Payments        $3000
+        Towing & Storage           $200
+        Medical Payments         $3000
         ------------------------------------------------
         Total Demand            $4,960
 
@@ -640,14 +640,14 @@ elif selected_screen == "📑 Subrogation Workbench":
 
                     # Demand Package button
                     with col5:
-                        if st.button("📄 Demand Letter", key=f"demand_{row['Claim_Number']}"):
+                        if st.button("📄 Demand Package", key=f"demand_{row['Claim_Number']}"):
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "demand_package"
                             st.rerun()
 
                     # Internal Notes button
                     with col6:
-                        if st.button("📝 Internal Notes", key=f"notes_{row['Claim_Number']}"):
+                        if st.button("📝 Internal Report", key=f"notes_{row['Claim_Number']}"):
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "internal_notes"
                             st.rerun()
