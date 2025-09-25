@@ -229,9 +229,6 @@ if selected_screen == "📊 Claim Dashboard":
 elif selected_screen == "📈 Subrogation KPIs":
     st.title("📈 Subrogation Business KPIs")
     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
-    # Title
-    st.title("🚨 Subrogation Propensity Claims Review Dashboard")
-
     # Aggregated KPIs
     total_claims = df["Claim_Number"].nunique()
     total_paid = df["PAID_FINAL"].sum()
