@@ -71,9 +71,9 @@ with st.sidebar:
     selected_screen = st.radio("📁 Navigation", [
         "📊 Claim Dashboard", 
         "📑 Subrogation Workbench",
-        "📈 Subrogation KPIs", 
-        "📊 Monitoring Dashboard", 
-        "🧠 Q&A Assistant"
+        "🧠 Q&A Assistant", 
+        "📊 Monitoring Dashboard",
+        "📈 Subrogation KPIs"
     ])
 
 
@@ -537,7 +537,7 @@ elif selected_screen == "📑 Subrogation Workbench":
             # Download button
             with open(internal_pdf, "rb") as f:
                 st.download_button(
-                    label="⬇️ Download Adjuster Claim Notes",
+                    label="⬇️ Download Internal Adjuster Report",
                     data=f,
                     file_name=f"Internal_adjuster_notes_report_{claim_number}.pdf",
                     mime="application/pdf",
