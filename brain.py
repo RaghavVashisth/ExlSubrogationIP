@@ -9,6 +9,7 @@ from report_generator import generate_demand_letter_from_text, create_demand_pac
 import base64
 from llm_processing import llm
 import shutil
+import time
 
 
 
@@ -466,18 +467,24 @@ elif selected_screen == "📑 Subrogation Workbench":
                 st.session_state["view"] = "subro_workbench"
                 st.rerun()
 
+
         with col2:
             if st.button("✅ Generate Demand Package"):
+                progress = st.progress(0, text="⚙️ Initializing demand package generation...")
+
                 processed_dir = os.path.join(PROCESSED_BASE_DIR, f"{claim_number}")
                 os.makedirs(processed_dir, exist_ok=True)
 
                 OUTPUT_PDF = os.path.join(processed_dir, "Subro_Demand_exhibits_package.pdf")
                 INTERNAL_PDF = os.path.join(processed_dir, "Internal_adjuster_notes_report.pdf")
 
-                # Generate demand letter from edited text
+                # Step 1: Generate demand letter
+                progress.progress(30, text="📝 Generating demand letter...")
                 demand_letter_pdf = generate_demand_letter_from_text(edited_letter)
+                time.sleep(0.5)  # optional for smoother UX
 
-                # Merge cover + demand letter + exhibits
+                # Step 2: Compile demand package with exhibits
+                progress.progress(70, text="📑 Compiling exhibits and merging package...")
                 exhibits = st.session_state["uploaded_docs"][claim_number]
                 create_demand_package_final_reports(
                     exhibit_files=exhibits,
@@ -487,11 +494,22 @@ elif selected_screen == "📑 Subrogation Workbench":
                     logo_path=LOGO_PATH,
                     demand_letter_pdf=demand_letter_pdf  # pass custom edited letter
                 )
+                time.sleep(0.5)
+
+                # Step 3: Complete
+                progress.progress(100, text="✅ Demand package generated successfully!")
+
                 exhibits_pdf = os.path.join(PROCESSED_BASE_DIR, f"{claim_number}", "Subro_Demand_exhibits_package.pdf")
                 # Store path in session for preview/download
                 st.session_state["final_demand_package"] = exhibits_pdf
                 st.session_state["view"] = "demand_package_preview"
+
+                st.success(f"📄 Demand Package generated for Claim {claim_number}")
                 st.rerun()
+
+
+
+
 
     # -------------------- DEMAND PACKAGE PREVIEW SCREEN --------------------
     elif "view" in st.session_state and st.session_state["view"] == "demand_package_preview":
@@ -597,10 +615,15 @@ elif selected_screen == "📑 Subrogation Workbench":
                         )
 
                         if uploaded_files:
+                            progress = st.progress(0, text="📂 Initializing upload...")
                             claim_dir = os.path.join(UPLOAD_BASE_DIR, f"{row['Claim_Number']}")
                             os.makedirs(claim_dir, exist_ok=True)
 
-                            for uploaded_file in uploaded_files:
+                            # Upload processing with progress
+                            total_steps = len(uploaded_files) + 2  # +2 for reports
+                            step = 0
+
+                            for i, uploaded_file in enumerate(uploaded_files):
                                 file_path = os.path.join(claim_dir, uploaded_file.name)
                                 with open(file_path, "wb") as f:
                                     f.write(uploaded_file.getbuffer())
@@ -610,9 +633,13 @@ elif selected_screen == "📑 Subrogation Workbench":
                                 if file_path not in st.session_state["uploaded_docs"][row['Claim_Number']]:
                                     st.session_state["uploaded_docs"][row['Claim_Number']].append(file_path)
 
-                                st.success(f"✅ {uploaded_file.name} saved in {claim_dir}")
+                                step += 1
+                                progress.progress(int((step / total_steps) * 100), 
+                                                text=f"📂 Uploaded {uploaded_file.name}")
 
-                            # Generate reports for all exhibits
+                                time.sleep(0.2)  # just to show smooth progress (optional)
+
+                            # After upload, move to report generation
                             exhibits = st.session_state["uploaded_docs"][row['Claim_Number']]
                             processed_dir = os.path.join(PROCESSED_BASE_DIR, f"{row['Claim_Number']}")
                             os.makedirs(processed_dir, exist_ok=True)
@@ -621,6 +648,9 @@ elif selected_screen == "📑 Subrogation Workbench":
                             INTERNAL_PDF = os.path.join(processed_dir, "Internal_adjuster_notes_report.pdf")
                             claim_details = df[df["Claim_Number"] == row['Claim_Number']].to_dict("records")[0]
 
+                            # Step 1: Internal report
+                            step += 1
+                            progress.progress(int((step / total_steps) * 100), text="📝 Generating internal report...")
                             create_internal_final_reports(
                                 exhibit_files=exhibits,
                                 output_internal_pdf=INTERNAL_PDF,
@@ -628,7 +658,15 @@ elif selected_screen == "📑 Subrogation Workbench":
                                 prepared_by="System Auto-Generated",
                                 logo_path=LOGO_PATH
                             )
+                            time.sleep(0.5)
 
+                            # Step 2: Demand package (optional)
+                            step += 1
+                            progress.progress(int((step / total_steps) * 100), text="📑 Creating demand package...")
+                            generate_demand_letter_from_text("Auto-generated demand letter")  # Example
+                            time.sleep(0.5)
+
+                            progress.progress(100, text="✅ Reports generated successfully!")
                             st.success(f"📄 Reports generated for Claim {row['Claim_Number']}")
 
                     # Demand Package button
