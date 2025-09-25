@@ -71,9 +71,9 @@ with st.sidebar:
     selected_screen = st.radio("📁 Navigation", [
         "📊 Claim Dashboard", 
         "📑 Subrogation Workbench",
-        "📈 Subrogation KPIs", 
-        "📊 Monitoring Dashboard", 
-        "🧠 Q&A Assistant"
+        "🧠 Q&A Assistant", 
+        "📊 Monitoring Dashboard",
+        "📈 Subrogation KPIs"
     ])
 
 
@@ -227,9 +227,7 @@ if selected_screen == "📊 Claim Dashboard":
 # # -------------------- 📈 KPI Screen --------------------
 elif selected_screen == "📈 Subrogation KPIs":
     st.title("📈 Subrogation Business KPIs")
-
     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
-
     # Title
     st.title("🚨 Subrogation Propensity Claims Review Dashboard")
 
@@ -290,7 +288,6 @@ elif selected_screen == "📊 Monitoring Dashboard":
         src="https://app.powerbi.com/reportEmbed?reportId=49d274d9-37a4-4f06-ac05-dc7a98960ed9&autoAuth=true&ctid=dafe49bc-5ac3-4310-97b4-3e44a28cbf18&actionBarEnabled=true" 
         frameborder="0" allowFullScreen="true"></iframe>
     """
-
     components.html(powerbi_embed_url, height=650)
 
 
@@ -377,430 +374,6 @@ elif selected_screen == "🧠 Q&A Assistant":
                 except Exception as e:
                     st.error(f"Error generating answer: {e}")
 
-
-
-
-
-
-# -------------------- 📑 Actioned Claims Screen --------------------
-# elif selected_screen == "📑 Subrogation Workbench":
-#     st.title("📑 Claims with Actions Taken")
-
-#     # Filter only claims with some action
-#     actioned_df = df[df["User_Action"].isin(["ASSIGNED"])].copy()
-
-#     if actioned_df.empty:
-#         st.info("⚠️ No claims have been assigned to Subrogation Workbench.")
-#     else:
-#         st.success(f"✅ Showing {len(actioned_df)} claims where actions were saved.")
-
-#         # Loop through each claim row
-#         for idx, row in actioned_df.iterrows():
-#             with st.container(border=True):
-#                 col1, col2, col3, col4 = st.columns([2, 2, 2, 2])
-
-#                 with col1:
-#                     st.write(f"**Claim #:** {row['Claim_Number']}")
-#                 with col2:
-#                     st.write(f"**Peril:** {row['MAJ_PERIL_CD']}")
-#                 with col3:
-#                     st.write(f"**State:** {row['STATE_GROUP']}")
-#                 with col4:
-#                     st.write(f"**Action:** {row['User_Action']}")
-
-#                 # Generate Demand Letter Button
-#                 demand_key = f"demand_{row['Claim_Number']}"
-#                 if st.button("📄 Generate Demand Letter", key=demand_key):
-#                     st.session_state["selected_claim"] = row["Claim_Number"]
-
-#         # -------------------- Demand Letter Section --------------------
-#         if "selected_claim" in st.session_state:
-#             claim_number = st.session_state["selected_claim"]
-#             claim_details = actioned_df[actioned_df["Claim_Number"] == claim_number].to_dict("records")[0]
-
-#             st.markdown("---")
-#             st.subheader(f"📄 Demand Letter for Claim #{claim_number}")
-
-#             # Here you can call your LLM / GenAI API. For now using a template:
-#             demand_letter = f"""
-#             Dear [Insurance Company],
-
-#             This letter concerns Claim Number {claim_details['Claim_Number']} 
-#             related to {claim_details['MAJ_PERIL_CD']} in {claim_details['STATE_GROUP']}.
-
-#             After a detailed review of the facts and the coverage, we are formally
-#             demanding settlement in the amount of ${claim_details['PAID_FINAL']:,}.
-
-#             Please respond within the stipulated timeframe to avoid further proceedings.
-
-#             Regards,  
-#             [Your Legal Team]
-#             """
-
-#             st.text_area("📜 Generated Demand Letter", demand_letter, height=300)
-
-#             # Download button
-#             st.download_button(
-#                 label="📥 Download Demand Letter",
-#                 data=demand_letter,
-#                 file_name=f"demand_letter_{claim_number}.txt",
-#                 mime="text/plain"
-#             )
-
-#             # Close button
-#             if st.button("❌ Close Demand Letter View"):
-#                 del st.session_state["selected_claim"]
-
-
-# # -------------------- 📑 Actioned Claims Screen --------------------
-# elif selected_screen == "📑 Subrogation Workbench":
-#     # If user clicked on a claim to generate demand letter → show demand letter screen
-#     if "view" in st.session_state and st.session_state["view"] == "demand_letter":
-#         claim_number = st.session_state["selected_claim"]
-#         claim_details = df[df["Claim_Number"] == claim_number].to_dict("records")[0]
-
-#         st.title(f"📄 Demand Letter for Claim #{claim_number}")
-
-#         # Example demand letter template
-#         demand_letter = f"""
-#         To:
-#         [At-Fault Party's Insurance Carrier Name]
-#         [Address]
-
-#         Re: Subrogation Demand - Claim No. {claim_details['Claim_Number']}
-#         Our Insured: [Name]
-#         Your Insured: [Name]
-#         Date of Loss: [MM/DD/YYYY]
-#         Loss Location: {claim_details['STATE_GROUP']}
-
-#         Dear [Claims Adjuster Name],
-
-#         We represent [Insurer Name], the automobile insurance carrier for [Claimant Name]. On [Date of Loss], your insured, [Third Party Insured Name] negligently caused a motor
-#         vehicle collision at [Location]. Based on the police report and supporting evidence, your insured was cited for failure to stop at a red light,
-#         thereby establishing liability.
-
-#         As a result of this incident, [Insurer Name] indemnified our insured for the following damages:
-
-#         Category                Amount Paid (USD)
-#         ------------------------------------------------
-#         [Enter Category 1 Ex: Vehicle Repairs]         $[Enter]
-#         [Enter Category 2 Ex: Rental Car Expenses]     $[Enter]
-#         [Enter Category 3 Ex: Towing & Storage]        $[Enter]
-#         [Enter Category 4 Ex: Medical Payments]        $[Enter]
-#         ------------------------------------------------
-#         Total Demand            ${claim_details['PAID_FINAL']:,}
-
-#         We hereby demand reimbursement in the amount of ${claim_details['PAID_FINAL']:,} within thirty (30) days of receipt of this letter. Enclosed please find supporting
-#         documentation, including proof of payment, repair invoices, photographs, and the police report.
-
-#         Should this matter remain unresolved, we reserve the right to pursue recovery through Arbitration Forums, Inc. or litigation as applicable under state law.
-
-#         Please direct all correspondence and payments to the undersigned.
-
-#         Sincerely,  
-#         [Claims Representative Name]  
-#         [Title]  
-#         [Insurer Name]  
-#         [Contact Information]  
-#         """
-
-#         st.text_area("📜 Generate Demand Package", demand_letter, height=500)
-
-#         # Download option
-#         st.download_button(
-#             label="📥 Download Demand Letter",
-#             data=demand_letter,
-#             file_name=f"demand_letter_{claim_number}.txt",
-#             mime="text/plain"
-#         )
-
-#         # Back button to return to claims list
-#         if st.button("⬅️ Back to Claims"):
-#             st.session_state["view"] = "claims"
-
-
-        
-
-#     # Otherwise → show the actioned claims list
-#     else:
-#         st.title("📑 Subrogation Workbench")
-
-#         # Filter only claims with some action
-#         actioned_df = df[df["User_Action"].isin(["ASSIGNED"])].copy()
-
-#         if actioned_df.empty:
-#             st.info("⚠️ No claims have been assigned to Subrogation Workbench.")
-#         else:
-#             st.success(f"✅ Showing {len(actioned_df)} claims where actions were saved.")
-
-#             # Loop through each claim row
-#             for idx, row in actioned_df.iterrows():
-#                 with st.container(border=True):
-#                     col1, col2, col3, col4, col5 = st.columns([2, 1.5, 2.5, 1.5, 2])
-
-#                     with col1:
-#                         st.write(f"**Claim #:** {row['Claim_Number']}")
-#                     with col2:
-#                         st.write(f"**Peril:** {row['MAJ_PERIL_CD']}")
-#                     with col3:
-#                         st.write(f"**State:** {row['STATE_GROUP']}")
-#                     with col4:
-#                         st.write(f"**Action:** {row['User_Action']}")
-
-#                     # Generate Demand Letter Button
-#                     demand_key = f"demand_{row['Claim_Number']}"
-#                     with col5:
-#                         if st.button("📄 Generate Demand Package", key=demand_key):
-#                             st.session_state["selected_claim"] = row["Claim_Number"]
-#                             st.session_state["view"] = "demand_letter"
-#                             st.rerun()
-
-
-
-
-# # -------------------- 📑 Actioned Claims Screen --------------------
-# elif selected_screen == "📑 Subrogation Workbench":
-#     # If user clicked on a claim to generate demand letter → show demand letter screen
-#     if "view" in st.session_state and st.session_state["view"] == "demand_letter":
-#         claim_number = st.session_state["selected_claim"]
-#         claim_details = df[df["Claim_Number"] == claim_number].to_dict("records")[0]
-
-#         st.title(f"📄 Demand Letter for Claim #{claim_number}")
-
-#         # Example demand letter template
-#         demand_letter = f"""
-#         To:
-#         [At-Fault Party's Insurance Carrier Name]
-#         [Address]
-
-#         Re: Subrogation Demand - Claim No. {claim_details['Claim_Number']}
-#         Our Insured: [Name]
-#         Your Insured: [Name]
-#         Date of Loss: [MM/DD/YYYY]
-#         Loss Location: {claim_details['STATE_GROUP']}
-
-#         Dear [Claims Adjuster Name],
-
-#         We represent [Insurer Name], the automobile insurance carrier for [Claimant Name]. On [Date of Loss], your insured, [Third Party Insured Name] negligently caused a motor
-#         vehicle collision at [Location]. Based on the police report and supporting evidence, your insured was cited for failure to stop at a red light,
-#         thereby establishing liability.
-
-#         As a result of this incident, [Insurer Name] indemnified our insured for the following damages:
-
-#         Category                Amount Paid (USD)
-#         ------------------------------------------------
-#         [Enter Category 1 Ex: Vehicle Repairs]         $[Enter]
-#         [Enter Category 2 Ex: Rental Car Expenses]     $[Enter]
-#         [Enter Category 3 Ex: Towing & Storage]        $[Enter]
-#         [Enter Category 4 Ex: Medical Payments]        $[Enter]
-#         ------------------------------------------------
-#         Total Demand            ${claim_details['PAID_FINAL']:,}
-
-#         We hereby demand reimbursement in the amount of ${claim_details['PAID_FINAL']:,} within thirty (30) days of receipt of this letter. Enclosed please find supporting
-#         documentation, including proof of payment, repair invoices, photographs, and the police report.
-
-#         Should this matter remain unresolved, we reserve the right to pursue recovery through Arbitration Forums, Inc. or litigation as applicable under state law.
-
-#         Please direct all correspondence and payments to the undersigned.
-
-#         Sincerely,  
-#         [Claims Representative Name]  
-#         [Title]  
-#         [Insurer Name]  
-#         [Contact Information]  
-#         """
-
-#         st.text_area("📜 Generate Demand Package", demand_letter, height=500)
-
-#         # Download option
-#         st.download_button(
-#             label="📥 Download Demand Letter",
-#             data=demand_letter,
-#             file_name=f"demand_letter_{claim_number}.txt",
-#             mime="text/plain"
-#         )
-
-#         # Back button to return to claims list
-#         if st.button("⬅️ Back to Claims"):
-#             st.session_state["view"] = "claims"
-
-
-#     elif "view" in st.session_state and st.session_state["view"] == "internal_notes":
-#         claim_number = st.session_state["selected_claim"]
-#         internal_pdf = os.path.join(PROCESSED_BASE_DIR, f"{claim_number}", "Internal_adjuster_notes_report.pdf")
-
-#         st.subheader(f"📝 Internal Adjuster Notes Report for Claim {claim_number}")
-
-#         if os.path.exists(internal_pdf):
-#             # Preview PDF
-#             with open(internal_pdf, "rb") as f:
-#                 st.download_button(
-#                     label="⬇️ Download Adjuster Claim Notes",
-#                     data=f,
-#                     file_name=f"Internal_adjuster_notes_report_{claim_number}.pdf",
-#                     mime="application/pdf",
-#                     key=f"download_internal_{claim_number}"
-#                 )
-
-#             # Show PDF preview
-#             st.components.v1.iframe(internal_pdf, height=600)
-
-#         else:
-#             st.warning("⚠️ Internal Adjuster Notes Report not found for this claim.")
-
-#         # Back Button
-#         if st.button("⬅️ Back to Subrogation Workbench"):
-#             st.session_state["view"] = "subro_workbench"
-#             st.rerun()
-
-    
-
-#     # Otherwise → show the actioned claims list
-#     else:
-#         st.title("📑 Subrogation Workbench")
-
-#         # Filter only claims with some action
-#         actioned_df = df[df["User_Action"].isin(["ASSIGNED"])].copy()
-
-#         if actioned_df.empty:
-#             st.info("⚠️ No claims have been assigned to Subrogation Workbench.")
-#         else:
-#             st.success(f"✅ Showing {len(actioned_df)} claims where actions were saved.")
-
-#             # Ensure session state for uploaded files
-#             if "uploaded_docs" not in st.session_state:
-#                 st.session_state["uploaded_docs"] = {}
-
-#             # Loop through each claim row
-#             for idx, row in actioned_df.iterrows():
-#                 with st.container(border=True):
-#                     col1, col2, col3, col4, col5, col6, col7 = st.columns([1.5, 1, 2, 1.5, 2, 2.5,2])
-
-#                     with col1:
-#                         st.write(f"**Claim #:** {row['Claim_Number']}")
-#                     with col2:
-#                         st.write(f"**Peril:** {row['MAJ_PERIL_CD']}")
-#                     with col3:
-#                         st.write(f"**State:** {row['STATE_GROUP']}")
-#                     with col4:
-#                         st.write(f"**Action:** {row['User_Action']}")
-
-#                     # Base directory where all claim folders will be stored
-#                     UPLOAD_BASE_DIR = "uploaded_claims"
-#                     os.makedirs(UPLOAD_BASE_DIR, exist_ok=True)
-
-#                     # # Upload documents for claim
-#                     # with col5:
-#                     #     uploaded_file = st.file_uploader(
-#                     #         f"📎 Upload File (Claim {row['Claim_Number']})",
-#                     #         type=None,   # ✅ allow all file types
-#                     #         key=f"uploader_{row['Claim_Number']}"
-#                     #     )
-
-#                     #     if uploaded_file is not None:
-#                     #         # Create a directory for this claim
-#                     #         claim_dir = os.path.join(UPLOAD_BASE_DIR, f"{row['Claim_Number']}")
-#                     #         os.makedirs(claim_dir, exist_ok=True)
-
-#                     #         # Save uploaded file inside claim-specific folder
-#                     #         file_path = os.path.join(claim_dir, uploaded_file.name)
-#                     #         with open(file_path, "wb") as f:
-#                     #             f.write(uploaded_file.getbuffer())
-
-#                     #         # Track files in session state for later processing
-#                     #         if row['Claim_Number'] not in st.session_state["uploaded_docs"]:
-#                     #             st.session_state["uploaded_docs"][row['Claim_Number']] = []
-#                     #         st.session_state["uploaded_docs"][row['Claim_Number']].append(file_path)
-
-#                     #         st.success(f"✅ {uploaded_file.name} saved in folder: {claim_dir}")
-
-
-#                     # Base directories
-#                     UPLOAD_BASE_DIR = "uploaded_claims"
-#                     PROCESSED_BASE_DIR = "processed_claims"
-#                     os.makedirs(UPLOAD_BASE_DIR, exist_ok=True)
-#                     os.makedirs(PROCESSED_BASE_DIR, exist_ok=True)
-
-#                     LOGO_PATH = "exl_logo.png"  # update as needed
-
-#                     # For each claim row in your loop
-#                     with col5:
-#                         uploaded_file = st.file_uploader(
-#                             f"📎 Upload File (Claim {row['Claim_Number']})",
-#                             type=None,   # ✅ allow all file types
-#                             key=f"uploader_{row['Claim_Number']}"
-#                         )
-
-#                         if uploaded_file is not None:
-#                             # Create upload directory for this claim
-#                             claim_dir = os.path.join(UPLOAD_BASE_DIR, f"{row['Claim_Number']}")
-#                             os.makedirs(claim_dir, exist_ok=True)
-
-#                             # Save uploaded file
-#                             file_path = os.path.join(claim_dir, uploaded_file.name)
-#                             with open(file_path, "wb") as f:
-#                                 f.write(uploaded_file.getbuffer())
-
-#                             # Track files in session state
-#                             if row['Claim_Number'] not in st.session_state["uploaded_docs"]:
-#                                 st.session_state["uploaded_docs"][row['Claim_Number']] = []
-#                             st.session_state["uploaded_docs"][row['Claim_Number']].append(file_path)
-
-#                             st.success(f"✅ {uploaded_file.name} saved in folder: {claim_dir}")
-
-#                             # ---- Trigger report generation after upload ----
-#                             exhibits = st.session_state["uploaded_docs"][row['Claim_Number']]
-#                             processed_dir = os.path.join(PROCESSED_BASE_DIR, f"{row['Claim_Number']}")
-#                             os.makedirs(processed_dir, exist_ok=True)
-
-#                             # Define output files inside processed_claims/{Claim_Number}
-#                             OUTPUT_PDF = os.path.join(processed_dir, "Subro_Demand_exhibits_package.pdf")
-#                             INTERNAL_PDF = os.path.join(processed_dir, "Internal_adjuster_notes_report.pdf")
-
-#                             create_final_reports(
-#                                 exhibit_files=exhibits,   # ✅ renamed
-#                                 output_demand_pdf=OUTPUT_PDF,
-#                                 output_internal_pdf=INTERNAL_PDF,
-#                                 claim_id=str(row['Claim_Number']),
-#                                 prepared_by="System Auto-Generated",
-#                                 logo_path=LOGO_PATH
-#                             )
-
-
-#                             st.success(f"📄 Reports generated for Claim {row['Claim_Number']} in {processed_dir}")
-
-
-
-#                     # Generate Demand Letter Button
-#                     demand_key = f"demand_{row['Claim_Number']}"
-#                     with col6:
-#                         if st.button("📄 Generate Demand Package", key=demand_key):
-#                             st.session_state["selected_claim"] = row["Claim_Number"]
-#                             st.session_state["view"] = "demand_letter"
-#                             st.rerun()
-                        
-#                         exhibits_pdf = os.path.join(PROCESSED_BASE_DIR, f"{row['Claim_Number']}", "Subro_Demand_exhibits_package.pdf")
-#                         if os.path.exists(exhibits_pdf):
-#                             with open(exhibits_pdf, "rb") as f:
-#                                 st.download_button(
-#                                     label="📦 Subro Demand Exhibit Package",
-#                                     data=f,
-#                                     file_name=f"Subro_Demand_exhibits_package_{row['Claim_Number']}.pdf",
-#                                     mime="application/pdf",
-#                                     key=f"download_exhibits_{row['Claim_Number']}"
-#                                 )
-#                             st.components.v1.iframe(exhibits_pdf, height=400)
-
-#                     with col7:
-#                         if st.button("📝 Internal Notes", key=f"notes_{row['Claim_Number']}"):
-#                             st.session_state["selected_claim"] = row["Claim_Number"]
-#                             st.session_state["view"] = "internal_notes"
-#                             st.rerun()
-
-
-
-
-
 # -------------------- 📑 Actioned Claims Screen --------------------
 elif selected_screen == "📑 Subrogation Workbench":
     
@@ -818,104 +391,6 @@ elif selected_screen == "📑 Subrogation Workbench":
         st.markdown(pdf_display, unsafe_allow_html=True)
 
 
-    # # -------------------- Demand Letter Screen --------------------
-    # if "view" in st.session_state and st.session_state["view"] == "demand_letter":
-    #     claim_number = st.session_state["selected_claim"]
-    #     claim_details = df[df["Claim_Number"] == claim_number].to_dict("records")[0]
-
-    #     st.title(f"📄 Demand Letter for Claim #{claim_number}")
-
-    #     # Example demand letter template
-    #     demand_letter = f"""
-    #     To:
-    #     [At-Fault Party's Insurance Carrier Name]
-    #     [Address]
-
-    #     Re: Subrogation Demand - Claim No. {claim_details['Claim_Number']}
-    #     Our Insured: [Name]
-    #     Your Insured: [Name]
-    #     Date of Loss: [MM/DD/YYYY]
-    #     Loss Location: {claim_details['STATE_GROUP']}
-
-    #     Dear [Claims Adjuster Name],
-
-    #     We represent [Insurer Name], the automobile insurance carrier for [Claimant Name]. 
-    #     On [Date of Loss], your insured, [Third Party Insured Name] negligently caused a motor
-    #     vehicle collision at [Location]. Based on the police report and supporting evidence, 
-    #     your insured was cited for failure to stop at a red light, thereby establishing liability.
-
-    #     As a result of this incident, [Insurer Name] indemnified our insured for the following damages:
-
-    #     Category                Amount Paid (USD)
-    #     ------------------------------------------------
-    #     [Vehicle Repairs]         $[Enter]
-    #     [Rental Car Expenses]     $[Enter]
-    #     [Towing & Storage]        $[Enter]
-    #     [Medical Payments]        $[Enter]
-    #     ------------------------------------------------
-    #     Total Demand            ${claim_details['PAID_FINAL']:,}
-
-    #     We hereby demand reimbursement in the amount of ${claim_details['PAID_FINAL']:,} 
-    #     within thirty (30) days of receipt of this letter. Enclosed please find supporting
-    #     documentation, including proof of payment, repair invoices, photographs, and the police report.
-
-    #     Should this matter remain unresolved, we reserve the right to pursue recovery 
-    #     through Arbitration Forums, Inc. or litigation as applicable under state law.
-
-    #     Please direct all correspondence and payments to the undersigned.
-
-    #     Sincerely,  
-    #     [Claims Representative Name]  
-    #     [Title]  
-    #     [Insurer Name]  
-    #     [Contact Information]  
-    #     """
-
-    #     st.text_area("📜 Generated Demand Package", demand_letter, height=500)
-
-    #     # Download option
-    #     st.download_button(
-    #         label="📥 Download Demand Letter",
-    #         data=demand_letter,
-    #         file_name=f"demand_letter_{claim_number}.txt",
-    #         mime="text/plain"
-    #     )
-
-    #     # Back button
-    #     if st.button("⬅️ Back to Subrogation Workbench"):
-    #         st.session_state["view"] = "subro_workbench"
-    #         st.rerun()
-
-# --------------------------------------------------------------------------2nd final code-----------
-
-    # if "view" in st.session_state and st.session_state["view"] == "demand_package":
-    #     claim_number = st.session_state["selected_claim"]
-    #     exhibits_pdf = os.path.join(PROCESSED_BASE_DIR, f"{claim_number}", "Subro_Demand_exhibits_package.pdf")
-
-    #     st.subheader(f"📄 Demand Package for Claim {claim_number}")
-
-    #     if os.path.exists(exhibits_pdf):
-    #         # Preview PDF inline
-    #         display_pdf(exhibits_pdf)
-
-    #         # Download button
-    #         with open(exhibits_pdf, "rb") as f:
-    #             st.download_button(
-    #                 label="⬇️ Download Demand Package",
-    #                 data=f,
-    #                 file_name=f"Subro_Demand_exhibits_package_{claim_number}.pdf",
-    #                 mime="application/pdf",
-    #                 key=f"download_package_{claim_number}"
-    #             )
-    #     else:
-    #         st.warning("⚠️ Demand Package not found for this claim.")
-
-    #     # Back button
-    #     if st.button("⬅️ Back to Subrogation Workbench"):
-    #         st.session_state["view"] = "subro_workbench"
-    #         st.rerun()
-# --------------------------------------------------------------------------
-
 
     # -------------------- DEMAND LETTER EDITOR SCREEN --------------------
     if "view" in st.session_state and st.session_state["view"] == "demand_package":
@@ -924,8 +399,8 @@ elif selected_screen == "📑 Subrogation Workbench":
 
         st.subheader(f"✍️ Edit Demand Letter for Claim {claim_number}")
 
-        At_fault_party_insurance_carrier_name = "Nationwide Mutual Insurance Company"
-        Third_party_insurance_carrier_Address = "Nationwide Plaza, Columbus, Ohio 43215-2220, USA"
+        At_fault_party_insurance_carrier_name = "XYZ Insurance Company"
+        Third_party_insurance_carrier_Address = "XYZ Plaza, Columbus, Ohio 43215-2220, USA"
         Insured_Name = "Reginald Williams"
         Other_Party_insured_name = "Karen Walton"
         Date_of_Loss = "09/15/2022"
@@ -946,19 +421,19 @@ elif selected_screen == "📑 Subrogation Workbench":
 
         Dear {other_party_adjuster_name},
 
-        We represent {Insured_Name}, the automobile insurance carrier for {Insured_Name}.On {Date_of_Loss},
+        We represent {Insured_Name}, the automobile insurance carrier for {Insured_Name}. On {Date_of_Loss},
         your insured, {Other_Party_insured_name} negligently caused a motor vehicle collision 
-        at {claim_details['STATE_GROUP']}.Based on the police report and supporting evidence,your insured
+        at {claim_details['STATE_GROUP']}. Based on the police report and supporting evidence, your insured
         was cited for failure to stop at a red light, thereby establishing liability.
 
         As a result of this incident, {Insured_Name} indemnified our insured for the following damages:
 
         Category                Amount Paid (USD)
         ------------------------------------------------
-        Vehicle Repairs         $1260
+        Vehicle Repairs             $1260
         Rental Car Expenses     $500
-        Towing & Storage        $200
-        Medical Payments        $3000
+        Towing & Storage           $200
+        Medical Payments         $3000
         ------------------------------------------------
         Total Demand            $4,960
 
@@ -1046,34 +521,6 @@ elif selected_screen == "📑 Subrogation Workbench":
             st.session_state["view"] = "demand_package"
             st.rerun()
 
-    #     # -------------------- DEMAND PACKAGE PREVIEW SCREEN --------------------
-    # elif "view" in st.session_state and st.session_state["view"] == "demand_package_preview":
-    #     claim_number = st.session_state["selected_claim"]
-    #     merged_pdf = st.session_state.get("final_demand_package")
-
-    #     st.subheader(f"📦 Final Demand Package Preview - Claim {claim_number}")
-
-    #     if merged_pdf and os.path.exists(merged_pdf):
-    #         # Preview inside Streamlit
-    #         with open(merged_pdf, "rb") as f:
-    #             base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-    #             pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="800px" type="application/pdf"></iframe>'
-    #             st.markdown(pdf_display, unsafe_allow_html=True)
-
-    #         # Download button
-    #         with open(merged_pdf, "rb") as f:
-    #             st.download_button(
-    #                 label="⬇️ Download Final Demand Package",
-    #                 data=f,
-    #                 file_name=f"Final_Demand_Package_{claim_number}.pdf",
-    #                 mime="application/pdf",
-    #                 key=f"download_final_{claim_number}"
-    #             )
-
-    #     if st.button("⬅️ Back to Edit Demand Letter"):
-    #         st.session_state["view"] = "demand_package"
-    #         st.rerun()
-
 
     # -------------------- Internal Notes Screen --------------------
     elif "view" in st.session_state and st.session_state["view"] == "internal_notes":
@@ -1090,7 +537,7 @@ elif selected_screen == "📑 Subrogation Workbench":
             # Download button
             with open(internal_pdf, "rb") as f:
                 st.download_button(
-                    label="⬇️ Download Adjuster Claim Notes",
+                    label="⬇️ Download Internal Adjuster Report",
                     data=f,
                     file_name=f"Internal_adjuster_notes_report_{claim_number}.pdf",
                     mime="application/pdf",
@@ -1186,59 +633,14 @@ elif selected_screen == "📑 Subrogation Workbench":
 
                     # Demand Package button
                     with col5:
-                        if st.button("📄 Demand Letter", key=f"demand_{row['Claim_Number']}"):
+                        if st.button("📄 Demand Package", key=f"demand_{row['Claim_Number']}"):
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "demand_package"
                             st.rerun()
 
-                        # exhibits_pdf = os.path.join(PROCESSED_BASE_DIR, f"{row['Claim_Number']}", "Subro_Demand_exhibits_package.pdf")
-                        # if os.path.exists(exhibits_pdf):
-                        #     with open(exhibits_pdf, "rb") as f:
-                        #         st.download_button(
-                        #             label="📦 Download Exhibit Package",
-                        #             data=f,
-                        #             file_name=f"Subro_Demand_exhibits_package_{row['Claim_Number']}.pdf",
-                        #             mime="application/pdf",
-                        #             key=f"download_exhibits_{row['Claim_Number']}"
-                        #         )
-
-
-
                     # Internal Notes button
                     with col6:
-                        if st.button("📝 Internal Notes", key=f"notes_{row['Claim_Number']}"):
+                        if st.button("📝 Internal Report", key=f"notes_{row['Claim_Number']}"):
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "internal_notes"
                             st.rerun()
-
-
-                        # def display_pdf(file_path):
-                        #     with open(file_path, "rb") as f:
-                        #         base64_pdf = base64.b64encode(f.read()).decode("utf-8")
-                        #     pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="600" type="application/pdf"></iframe>'
-                        #     st.markdown(pdf_display, unsafe_allow_html=True)
-
-                        # # Inside your Internal Notes button logic
-                        # if st.button("📝 Internal Notes", key=f"notes_{row['Claim_Number']}"):
-                        #     internal_pdf = os.path.join(PROCESSED_BASE_DIR, f"{row['Claim_Number']}", "Internal_adjuster_notes_report.pdf")
-                        #     if os.path.exists(internal_pdf):
-                        #         st.subheader(f"📄 Internal Adjuster Notes - Claim {row['Claim_Number']}")
-
-                        #         # Preview PDF
-                        #         display_pdf(internal_pdf)
-
-                        #         # Download button
-                        #         with open(internal_pdf, "rb") as f:
-                        #             st.download_button(
-                        #                 label="⬇️ Download Adjuster Notes",
-                        #                 data=f,
-                        #                 file_name=f"Internal_adjuster_notes_report_{row['Claim_Number']}.pdf",
-                        #                 mime="application/pdf",
-                        #                 key=f"download_internal_{row['Claim_Number']}"
-                        #             )
-
-                        #         # Back button
-                        #         if st.button("🔙 Back to Claims"):
-                        #             st.session_state["view"] = "claims_dashboard"
-                        #             st.rerun()
-

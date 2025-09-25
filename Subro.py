@@ -227,9 +227,7 @@ if selected_screen == "📊 Claim Dashboard":
 # # -------------------- 📈 KPI Screen --------------------
 elif selected_screen == "📈 Subrogation KPIs":
     st.title("📈 Subrogation Business KPIs")
-
     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
-
     # Title
     st.title("🚨 Subrogation Propensity Claims Review Dashboard")
 
@@ -290,7 +288,6 @@ elif selected_screen == "📊 Monitoring Dashboard":
         src="https://app.powerbi.com/reportEmbed?reportId=49d274d9-37a4-4f06-ac05-dc7a98960ed9&autoAuth=true&ctid=dafe49bc-5ac3-4310-97b4-3e44a28cbf18&actionBarEnabled=true" 
         frameborder="0" allowFullScreen="true"></iframe>
     """
-
     components.html(powerbi_embed_url, height=650)
 
 
@@ -376,10 +373,6 @@ elif selected_screen == "🧠 Q&A Assistant":
                     st.success(answer)
                 except Exception as e:
                     st.error(f"Error generating answer: {e}")
-
-
-
-
 
 # -------------------- 📑 Actioned Claims Screen --------------------
 elif selected_screen == "📑 Subrogation Workbench":
