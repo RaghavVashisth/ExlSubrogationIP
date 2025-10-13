@@ -15,7 +15,7 @@ import time
 
 # -------------------- Login Credential System --------------------
 USER_CREDENTIALS = {
-    "admin": "admin123",
+    "Admin": "Admin123",
     "exluser": "exl2025"
 }
 
@@ -42,40 +42,196 @@ def login():
 if not st.session_state.logged_in:
     login()
     st.stop()
+st.markdown("""
+    <style>
+        /* Remove default padding & header/footer */
+        .block-container { padding-top: 0rem !important; }
+        header, footer { visibility: hidden !important; }
+
+        /* Fixed top banner */
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(90deg, #004aad, #0073e6);
+            color: white;
+            padding: 0 40px 0 80px; /* <-- extra left padding to leave space for toggle */
+            z-index: 900;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        /* Sidebar toggle (☰) always on top */
+        [data-testid="collapsedControl"] {
+            z-index: 1001 !important;
+        }
+
+        /* Main content below banner */
+        .main-content {
+            margin-top: 70px !important;
+        }
+
+        /* Banner sections */
+        .banner-left img { height: 40px; }
+        .banner-center { font-size: 24px; font-weight: bold; text-align: center; flex: 1; }
+        .banner-right { font-size: 16px; font-weight: 500; }
+    </style>
+""", unsafe_allow_html=True)
+
+# Banner HTML
+st.markdown(f"""
+    <div class="top-banner">
+        <div class="banner-left">
+            <img src="exl logo.png" alt="Company Logo">
+        </div>
+        <div class="banner-center">
+            Subrogation Intelligence Platform
+        </div>
+        <div class="banner-right">
+            Welcome, {st.session_state.get("username", "User")}
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+
+
+
+# # -------------------- Main Content --------------------
+# st.markdown('<div class="main-content">', unsafe_allow_html=True)
+# st.title("Dashboard Content")
+# st.write("Your app content goes here...")
+# st.markdown('</div>', unsafe_allow_html=True)
+
+
 
 # -------------------- App Config and Style --------------------
 st.set_page_config(page_title="Subrogation Dashboard", layout="wide")
 
+# Global CSS for banner + layout
 st.markdown("""
     <style>
-        .stApp { background-color: #FFFFFF; color: black; }
-        section[data-testid="stSidebar"] { background-color: #F5F5F5 !important; color: black !important; }
-        * { color: black !important; }
-        div[data-baseweb="select"], div[data-baseweb="popover"], div[data-baseweb="option"], div[data-baseweb="menu"] {
-            background-color: white !important; color: black !important; border: 1px solid #ccc !important; border-radius: 5px !important;
+        /* Remove Streamlit default header and padding */
+        .block-container {
+            padding-top: 0rem !important;
         }
-        div[data-baseweb="option"]:hover, div[data-baseweb="option"][aria-selected="true"] {
-            background-color: #e6e6e6 !important;
+        header, footer {
+            visibility: hidden !important;
         }
+
+        /* Fixed Top Banner */
+        .top-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: linear-gradient(90deg, #004aad, #0073e6);
+            color: white;
+            padding: 0 40px;
+            z-index: 9999;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        /* Left section (logo) */
+        .banner-left img {
+            height: 40px;
+        }
+
+        /* Center section (title) */
+        .banner-center {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 26px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        /* Right section (welcome text) */
+        .banner-right {
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        /* Add space below banner so content is visible */
+        .main-content {
+            margin-top: 85px !important;
+        }
+
+        /* Sidebar look */
+        section[data-testid="stSidebar"] {
+            background-color: #F8F9FA !important;
+            border-right: 1px solid #E0E0E0 !important;
+        }
+        /* Buttons - light theme */
         .stButton > button {
-            background-color: white !important; color: black !important; border: 1px solid #ccc !important; border-radius: 5px !important;
+            background-color: #E3F2FD !important;  /* light blue */
+            color: #0047AB !important;             /* dark blue text */
+            border: 1px solid #B3E5FC !important;  /* subtle border */
+            border-radius: 8px !important;
+            padding: 0.5rem 1rem !important;
+            font-weight: 500 !important;
+            transition: all 0.3s ease !important;
         }
+
         .stButton > button:hover {
-            background-color: #e6e6e6 !important;
+            background-color: #BBDEFB !important;  /* slightly darker on hover */
+            color: #003580 !important;
+            border-color: #90CAF9 !important;
         }
+
     </style>
 """, unsafe_allow_html=True)
+
+# -------------------- Top Banner --------------------
+st.markdown(f"""
+    <div class="top-banner">
+        <div class="banner-left">
+            <img src="exl logo.png" alt="Company Logo">
+        </div>
+        <div class="banner-center">
+            Subrogation Transformation via AI-led Detection & Execution
+        </div>
+        <div class="banner-right">
+            Welcome,  {st.session_state.get("username", "User")}
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+# -------------------- Main Content Wrapper --------------------
+st.markdown('<div class="main-content">', unsafe_allow_html=True)
+
+
 
 # -------------------- Sidebar --------------------
 with st.sidebar:
     st.image("exl logo.png", use_container_width=True)
-    selected_screen = st.radio("📁 Navigation", [
-        "📊 Claim Dashboard", 
-        "📑 Subrogation Workbench",
-        "🧠 Q&A Assistant", 
-        "📊 Monitoring Dashboard",
-        "📈 Subrogation KPIs"
-    ])
+    st.markdown("### Navigation")
+    selected_screen = st.radio(
+        "",
+        [
+            "Model Recommendations",
+            "Subrogation Workbench",
+            "Q&A Assistant",
+            "Monitoring Dashboard",
+            "Subrogation KPIs"
+        ]
+    )
+
+    # st.markdown("---")
+    # st.subheader("Settings")
+    # if st.button("Reset App"):
+    #     clear_directory(DIR1)
+    #     clear_directory(DIR2)
+    #     st.sidebar.success("All data cleared successfully!")
+    #     st.rerun()
 
 
 # -------------------- Load Data --------------------
@@ -128,37 +284,41 @@ if st.sidebar.button("🔄 Reset App"):
 
 
 # -------------------- 📊 Dashboard Screen --------------------
-if selected_screen == "📊 Claim Dashboard":
-    st.title("🚨 Subrogation Propensity Claims Review Dashboard")
+if selected_screen == "Model Recommendations":
+    st.title("Welcome to STADE")
 
     # Toggle filters
-    enable_filters = st.checkbox("🔎 Enable Filters", value=True)
+    # enable_filters = st.checkbox("🔎 Enable Filters", value=True)
 
-    claim_search = st.text_input("🔍 Search by Claim Number", key="claim_search")
 
-    if enable_filters:
-        st.markdown("### 🛠️ Apply Filters")
-        filter_cols = st.columns(3)
+    # if enable_filters:
+    st.markdown("### 🛠️ Apply Filters")
+    filter_cols = st.columns(4)
 
-        with filter_cols[0]:
-            state_filter = st.selectbox('STATE', [" "] + list(df['STATE_GROUP'].unique()), key='state_filter')
+    with filter_cols[0]:
+        state_filter = st.selectbox('STATE', [" "] + list(df['STATE_GROUP'].unique()), key='state_filter')
 
-        with filter_cols[1]:
-            peril_filter = st.selectbox("MAJOR PERIL", [" "] + list(df['MAJ_PERIL_CD'].unique()), key='peril_filter')
+    with filter_cols[1]:
+        peril_filter = st.selectbox("MAJOR PERIL", [" "] + list(df['MAJ_PERIL_CD'].unique()), key='peril_filter')
 
-        with filter_cols[2]:
-            sub_det = st.selectbox("LOB SUB-LOB", [" "] + list(df['SUB_DTL_DESC'].unique()), key='sub_det_filter')
+    with filter_cols[2]:
+        sub_det = st.selectbox("LOB SUB-LOB", [" "] + list(df['SUB_DTL_DESC'].unique()), key='sub_det_filter')
+    with filter_cols[3]:
+        claim_search = st.text_input("🔍 Search by Claim Number", key="claim_search")
 
-        # Apply filters
-        filtered_df = df.copy()
-        if state_filter != " ":
-            filtered_df = filtered_df[filtered_df['STATE_GROUP'] == state_filter]
-        if peril_filter != " ":
-            filtered_df = filtered_df[filtered_df['MAJ_PERIL_CD'] == peril_filter]
-        if sub_det != " ":
-            filtered_df = filtered_df[filtered_df['SUB_DTL_DESC'] == sub_det]
-    else:
-        filtered_df = df.copy()
+
+        
+
+    # Apply filters
+    filtered_df = df.copy()
+    if state_filter != " ":
+        filtered_df = filtered_df[filtered_df['STATE_GROUP'] == state_filter]
+    if peril_filter != " ":
+        filtered_df = filtered_df[filtered_df['MAJ_PERIL_CD'] == peril_filter]
+    if sub_det != " ":
+        filtered_df = filtered_df[filtered_df['SUB_DTL_DESC'] == sub_det]
+# else:
+#     filtered_df = df.copy()
 
     # Apply claim number search if entered
     if claim_search.strip():
@@ -181,7 +341,7 @@ if selected_screen == "📊 Claim Dashboard":
     if suspicious_df.empty:
         st.info("⚠️ No suspected Subrogated claims found with current filters or search.")
     else:
-        st.subheader("📋 Review and Act on Each Suspected Claim")
+        st.subheader("📋 Review and Act on Model Recommended Claims")
 
         for idx, row in suspicious_df.iterrows():
             st.markdown("---")
@@ -226,8 +386,8 @@ if selected_screen == "📊 Claim Dashboard":
 
 
 # # -------------------- 📈 KPI Screen --------------------
-elif selected_screen == "📈 Subrogation KPIs":
-    st.title("📈 Subrogation Business KPIs")
+elif selected_screen == "Subrogation KPIs":
+    st.title("Subrogation Business KPIs")
     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
     # Aggregated KPIs
     total_claims = df["Claim_Number"].nunique()
@@ -276,8 +436,8 @@ elif selected_screen == "📈 Subrogation KPIs":
 
 
 # -------------------- 📊 Monitoring Dashboard --------------------
-elif selected_screen == "📊 Monitoring Dashboard":
-    st.title("📊 Monitoring Dashboard - Power BI")
+elif selected_screen == "Monitoring Dashboard":
+    st.title("Monitoring Dashboard - Power BI")
 
     st.markdown("#### Embedded Power BI Dashboard Below:")
     
@@ -290,8 +450,8 @@ elif selected_screen == "📊 Monitoring Dashboard":
 
 
 # -------------------- 🧠 Q&A Assistant --------------------
-elif selected_screen == "🧠 Q&A Assistant":
-    st.title("🧠 Q&A Assistant (Powered by OpenAI)")
+elif selected_screen == "Q&A Assistant":
+    st.title("Q&A Assistant (Powered by OpenAI)")
     st.markdown("This assistant answers questions based on the Adjuster Claim Notes.")
 
     # Select claim
@@ -373,7 +533,7 @@ elif selected_screen == "🧠 Q&A Assistant":
                     st.error(f"Error generating answer: {e}")
 
 # -------------------- 📑 Actioned Claims Screen --------------------
-elif selected_screen == "📑 Subrogation Workbench":
+elif selected_screen == "Subrogation Workbench":
     
     # Upload & process files
     UPLOAD_BASE_DIR = "uploaded_claims"
@@ -679,3 +839,7 @@ elif selected_screen == "📑 Subrogation Workbench":
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "internal_notes"
                             st.rerun()
+
+
+st.markdown('</div>', unsafe_allow_html=True)
+
