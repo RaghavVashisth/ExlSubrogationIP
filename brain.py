@@ -10,7 +10,6 @@ import base64
 from llm_processing import llm
 import shutil
 import time
-import statsmodels.api as sm
 import re
 from highlight import generate_highlights
 
