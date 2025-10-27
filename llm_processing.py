@@ -141,6 +141,7 @@ def process_file_with_llm(file_path):
             recommendations = "N/A"
 
         # Ensure we always return three values
+        # print(  summary, followups, recommendations )
         return summary, followups, recommendations
 
     except Exception as err:
@@ -170,3 +171,32 @@ def llm(prompt):
     except Exception as err:
         # Return safe fallback strings (so create_final_reports won't crash)
         return f"[LLM error: {err}]", "N/A", "N/A"
+    
+def llm_for_highlights(prompt):
+    try:
+        # LLM call for extracting key highlights
+        resp_sum = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": 
+                 (
+                    "You are an insurance claims assistant. Your job is to extract only the most important key highlights from the given exhibits. Keep the highlights short, crisp, factual, and concise as much as possible. collate all highlights as one summary and summary should not more than 7-10 bullet points. Make sure to assign headers & use bullet(✦︎) symbol starting each highlight point."
+                )
+                # (
+                #     "You are an insurance claims assistant. Your job is to extract only the most "
+                #     "important key highlights from the given summary, follow-ups, and recommendations. "
+                #     "Keep the highlights short, factual, and concise."
+                # )
+                
+                },
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2,
+            top_p=0.1,
+            max_tokens=600
+        )
+        summary = resp_sum.choices[0].message.content.strip()
+        return summary
+
+    except Exception as err:
+        return f"[LLM error: {err}]"

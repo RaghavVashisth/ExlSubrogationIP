@@ -10,6 +10,9 @@ import base64
 from llm_processing import llm
 import shutil
 import time
+import statsmodels.api as sm
+import re
+from highlight import generate_highlights
 
 
 
@@ -259,6 +262,7 @@ df = load_data()
 # Directories you want to clear
 DIR1 = "processed_claims"
 DIR2 = "uploaded_claims"
+DIR3 = "highlights"
 
 def clear_directory(dir_path):
     """Remove all files and subfolders inside a directory."""
@@ -278,6 +282,7 @@ st.sidebar.subheader("⚙️ Settings")
 if st.sidebar.button("🔄 Reset App"):
     clear_directory(DIR1)
     clear_directory(DIR2)
+    clear_directory(DIR3)
     st.sidebar.success("✅ All data cleared from directories!")
     st.rerun()   # refresh app after reset
 
@@ -345,7 +350,7 @@ if selected_screen == "Model Recommendations":
 
         for idx, row in suspicious_df.iterrows():
             st.markdown("---")
-            cols = st.columns([2, 1.2, 0.8, 1.2, 0.8, 1.2, 1.2, 1.2, 1,1,2, 1.2])
+            cols = st.columns([2, 1.2, 0.8, 1.2, 0.8, 1.2, 1.2, 1.2, 1,1,0.8,2, 1.2])
 
             with cols[0]: st.markdown(f"**Claim:** {row['Claim_Number']}")
             with cols[1]: st.markdown(f"**Peril:** {row['MAJ_PERIL_CD']}")
@@ -356,9 +361,11 @@ if selected_screen == "Model Recommendations":
             with cols[6]: st.markdown(f"**Loss Party:** {row['LOSS_PARTY']}")
             with cols[7]: st.markdown(f"**Severity:** {row['CLM_LOSS_SEVERITY_CD']}")
             with cols[8]: st.markdown(f"**ML Score:** {row['ML_SCORE']}")
+            with cols[9]: st.markdown(f"**LITIGATION:** {row['LITIGATION']}")
+
 
             # --- New Column for Notes Summary Toggle ---
-            with cols[9]:
+            with cols[10]:
                 st.markdown("**Notes**") 
                 show_summary = st.toggle("", key=f"notes_toggle_{idx}")
             if show_summary:
@@ -369,7 +376,7 @@ if selected_screen == "Model Recommendations":
                     key=f"notes_area_{idx}"
                 )
 
-            with cols[10]:
+            with cols[11]:
                 selected_action = st.selectbox(
                     "Action",
                     ["", "ASSIGNED", "NOT ASSIGNED", "No Action"],
@@ -377,7 +384,7 @@ if selected_screen == "Model Recommendations":
                     index=["", "ASSIGNED", "NOT ASSIGNED", "No Action"].index(row['User_Action']) if row['User_Action'] in ["", "ASSIGNED", "NOT ASSIGNED", "No Action"] else 0
                 )
 
-            with cols[11]:
+            with cols[12]:
                 if st.button("💾 Save", key=f"save_{idx}"):
                     df_all = pd.read_csv(data_path)
                     df_all.at[idx, 'User_Action'] = selected_action
@@ -385,54 +392,165 @@ if selected_screen == "Model Recommendations":
                     st.success(f"✅ Action saved for Claim {row['Claim_Number']}")
 
 
-# # -------------------- 📈 KPI Screen --------------------
+# # # -------------------- 📈 KPI Screen --------------------
+# elif selected_screen == "Subrogation KPIs":
+#     st.title("Subrogation Business KPIs")
+#     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
+#     # Aggregated KPIs
+#     total_claims = df["Claim_Number"].nunique()
+#     total_paid = df["PAID_FINAL"].sum()
+#     total_target_subro = df["Target_Subro"].sum()
+#     avg_paid = df["PAID_FINAL"].mean()
+#     avg_target_subro = df["Target_Subro"].mean()
+#     Total_Recovered = df['RECOVERY_AMT'].sum()
+#     AVG_Recovered = df['RECOVERY_AMT'].mean()
+
+#     col1, col2, col3, col4, col5, col6 = st.columns(6)
+#     col1.metric("🧾 Total Claims", f"{total_claims}")
+#     col2.metric("💰 Total Paid", f"${total_paid:,.0f}")
+#     col3.metric("🎯 Claims In Subro", f"{total_target_subro:,.0f}")
+#     col4.metric("📉 Avg Paid / Claim", f"${avg_paid:,.0f}")
+#     # col5.metric("📈 Avg Target Subro / Claim", f"${avg_target_subro:,.0f}")
+#     col5.metric("📈 Total Recovered", f"${Total_Recovered:,.0f}")
+#     col6.metric("📈 Avg Recoverd / Claim", f"${AVG_Recovered:,.0f}")
+
+
+#     st.markdown("---")
+
+#     # Aggregated by Accident State
+#     st.subheader("Subrogation KPIs by State")
+#     state_summary = df.groupby("STATE_GROUP").agg({
+#         "Claim_Number": "count",
+#         "PAID_FINAL": "sum",
+#         "Target_Subro": "sum"
+#     }).reset_index().rename(columns={"Claim_Number": "Total Claims"})
+
+#     fig1 = px.bar(state_summary, x="STATE_GROUP", y="Target_Subro",
+#                 title="Target Subrogation by State", labels={"ACDNT_ST_DESC": "State Group"})
+#     st.plotly_chart(fig1, use_container_width=True)
+
+#     # Aggregated by Account Category
+#     st.subheader("Subrogation KPIs by Account Category")
+#     acct_summary = df.groupby("ACCT_CR_DESC").agg({
+#         "Claim_Number": "count",
+#         "PAID_FINAL": "sum",
+#         "Target_Subro": "sum"
+#     }).reset_index().rename(columns={"Claim_Number": "Total Claims"})
+
+#     fig2 = px.bar(acct_summary, x="ACCT_CR_DESC", y="Target_Subro",
+#                 title="Target Subrogation by Account Category", labels={"ACCT_CR_DESC": "Account Category"})
+#     st.plotly_chart(fig2, use_container_width=True)
+
+
+
+
+# -------------------- 📈 KPI Screen --------------------
 elif selected_screen == "Subrogation KPIs":
-    st.title("Subrogation Business KPIs")
     st.set_page_config(page_title="Subrogation KPI Dashboard", layout="wide")
-    # Aggregated KPIs
+    st.title("Subrogation Business KPIs")
+
+    # --- Core Metrics ---
     total_claims = df["Claim_Number"].nunique()
     total_paid = df["PAID_FINAL"].sum()
-    total_target_subro = df["Target_Subro"].sum()
-    avg_paid = df["PAID_FINAL"].mean()
-    avg_target_subro = df["Target_Subro"].mean()
-    Total_Recovered = df['RECOVERY_AMT'].sum()
-    AVG_Recovered = df['RECOVERY_AMT'].mean()
+    total_target_subro = df[df["Target_Subro"] > 0]["Claim_Number"].nunique()
+    total_recovered = df["RECOVERY_AMT"].sum()
+    recovery_rate = total_recovered / total_paid if total_paid > 0 else 0
+    litigation_rate = ((df["LITIGATION"].str.lower() == "yes")& (df["RECOVERY_AMT"] != 0) ).mean() * 100
 
-    col1, col2, col3, col4, col5, col6 = st.columns(6)
+    col1, col2, col3, col4, col5 = st.columns(5)
     col1.metric("🧾 Total Claims", f"{total_claims}")
-    col2.metric("💰 Total Paid", f"${total_paid:,.0f}")
-    col3.metric("🎯 Claims In Subro", f"{total_target_subro:,.0f}")
-    col4.metric("📉 Avg Paid / Claim", f"${avg_paid:,.0f}")
-    # col5.metric("📈 Avg Target Subro / Claim", f"${avg_target_subro:,.0f}")
-    col5.metric("📈 Total Recovered", f"${Total_Recovered:,.0f}")
-    col6.metric("📈 Avg Recoverd / Claim", f"${AVG_Recovered:,.0f}")
+    col2.metric("🎯 Claims in Subrogation", f"{total_target_subro}")
+    col3.metric("💰 Total Paid", f"${total_paid:,.0f}")
+    col4.metric("💸 Total Recovered", f"${total_recovered:,.0f}")
+    col5.metric("📊 Recovery Rate", f"{recovery_rate:.2%}")
 
+    st.markdown(f"**⚖️ Litigation Rate of Subrogated Claims:** {litigation_rate:.1f}% ")
 
     st.markdown("---")
 
-    # Aggregated by Accident State
-    st.subheader("Subrogation KPIs by State")
-    state_summary = df.groupby("STATE_GROUP").agg({
-        "Claim_Number": "count",
-        "PAID_FINAL": "sum",
-        "Target_Subro": "sum"
-    }).reset_index().rename(columns={"Claim_Number": "Total Claims"})
 
-    fig1 = px.bar(state_summary, x="STATE_GROUP", y="Target_Subro",
-                title="Target Subrogation by State", labels={"ACDNT_ST_DESC": "State Group"})
-    st.plotly_chart(fig1, use_container_width=True)
+    colA, colB = st.columns(2)
 
-    # Aggregated by Account Category
-    st.subheader("Subrogation KPIs by Account Category")
-    acct_summary = df.groupby("ACCT_CR_DESC").agg({
-        "Claim_Number": "count",
-        "PAID_FINAL": "sum",
-        "Target_Subro": "sum"
-    }).reset_index().rename(columns={"Claim_Number": "Total Claims"})
+    with colA:
+        # --- 1️⃣ Recovery by State ---
+        st.subheader("Subrogation Recovery by State")
+        state_summary = df.groupby("STATE_GROUP").agg({
+            "PAID_FINAL": "sum",
+            "RECOVERY_AMT": "sum"
+        }).reset_index()
 
-    fig2 = px.bar(acct_summary, x="ACCT_CR_DESC", y="Target_Subro",
-                title="Target Subrogation by Account Category", labels={"ACCT_CR_DESC": "Account Category"})
-    st.plotly_chart(fig2, use_container_width=True)
+        fig1 = px.bar(state_summary, x="STATE_GROUP", y="RECOVERY_AMT",
+                    title="Total Recovery by State",
+                    labels={"STATE_GROUP": "State", "RECOVERY_AMT": "Total Recovered ($)"},
+                    color="STATE_GROUP")
+        st.plotly_chart(fig1, use_container_width=True)
+    
+    with colB:
+        # --- 2️⃣ Recovery by Account Category ---
+        st.subheader("Recovery by Account Category")
+        acct_summary = df.groupby("ACCT_CR_DESC").agg({
+            "PAID_FINAL": "sum",
+            "RECOVERY_AMT": "sum"
+        }).reset_index()
+
+        fig2 = px.bar(acct_summary, x="ACCT_CR_DESC", y="RECOVERY_AMT",
+                    title="Recovery by Account Category",
+                    labels={"ACCT_CR_DESC": "Account Category", "RECOVERY_AMT": "Total Recovered ($)"},
+                    color="ACCT_CR_DESC")
+        st.plotly_chart(fig2, use_container_width=True)
+
+    # colC, colD = st.columns(2)
+
+    # with colC:
+    #     # --- 3️⃣ Recovery vs Paid by Loss Severity ---
+    #     st.subheader("Recovery vs Paid by Loss Severity")
+    #     severity_summary = df.groupby("CLM_LOSS_SEVERITY_CD").agg({
+    #         "PAID_FINAL": "sum",
+    #         "RECOVERY_AMT": "sum"
+    #     }).reset_index()
+
+    #     fig3 = px.bar(severity_summary, x="CLM_LOSS_SEVERITY_CD", y=["PAID_FINAL", "RECOVERY_AMT"],
+    #                 title="Paid vs Recovery by Loss Severity",
+    #                 barmode="group",
+    #                 labels={"CLM_LOSS_SEVERITY_CD": "Loss Severity"})
+    #     st.plotly_chart(fig3, use_container_width=True)
+
+
+
+        # -------------------- Subrogation Claim Status Distribution --------------------
+    st.subheader("Recovery Status for Subrogated Claims")
+
+    # Filter to only claims with Target Subrogation > 0 (i.e., in subrogation)
+    subro_claims = df[df["Target_Subro"] > 0]
+
+    # Count of claim status for subrogated claims
+    status_summary = subro_claims["RECOVERY_STATUS"].value_counts().reset_index()
+    status_summary.columns = ["Claim Status", "Count"]
+
+    # Create bar chart
+    fig7 = px.bar(
+        status_summary,
+        x="Claim Status",
+        y="Count",
+        # title="Claim Status Distribution for Subrogated Claims",
+        color="Claim Status",
+        text="Count"
+    )
+
+    fig7.update_traces(textposition="outside")
+    st.plotly_chart(fig7, use_container_width=True)
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # -------------------- 📊 Monitoring Dashboard --------------------
@@ -685,12 +803,20 @@ elif selected_screen == "Subrogation Workbench":
             # Download button
             with open(merged_pdf, "rb") as f:
                 st.download_button(
-                    label="⬇️ Download Final Demand Package",
+                    label="⬇️ Download Final Demand Package to Send Via Post/Mail",
                     data=f,
                     file_name=f"Final_Demand_Package_{claim_number}.pdf",
                     mime="application/pdf",
                     key=f"download_final_{claim_number}"
                 )
+
+                st.button("🔜 Send Final Demand Package Via Email")
+                    # label="🔜 Send Final Demand Package Via Email",
+                    # data=f,
+                    # file_name=f"Final_Demand_Package_{claim_number}.pdf",
+                    # mime="application/pdf",
+                    # key=f"download_final_{claim_number}"
+                # )
 
         if st.button("⬅️ Back to Edit Demand Letter"):
             st.session_state["view"] = "demand_package"
@@ -737,7 +863,6 @@ elif selected_screen == "Subrogation Workbench":
             st.info("⚠️ No claims have been assigned to Subrogation Workbench.")
         else:
             st.success(f"✅ Showing {len(actioned_df)} claims where actions were saved.")
-
             if "uploaded_docs" not in st.session_state:
                 st.session_state["uploaded_docs"] = {}
 
@@ -749,7 +874,7 @@ elif selected_screen == "Subrogation Workbench":
                     with col2:
                         selected_action = st.selectbox(
                             "Action",
-                            [" ","Subrogation Assignment", "A New Witness Added Onto the Claim", "Send First Demand for Subrogation Letter/ Package", "Investigation Pending", "Medical/ Police Report Status", "Close - Not Pursuing"],
+                            [" ","Subrogation Assignment","In Litigation", "A New Witness Added Onto the Claim", "Send First Demand for Subrogation Letter/ Package", "Investigation Pending", "Medical/ Police Report Status", "Close - Not Pursuing"],
                             key=f"action_{idx}",
                             index=[" ","Subrogation Assignment", "A New Witness Added Onto the Claim", "Send First Demand for Subrogation Letter/ Package", "Investigation Pending", "Medical/ Police Report Status", "Close - Not Pursuing"].index(row['Subro_User_Action']) if row['Subro_User_Action'] in [" ","Subrogation Assignment", "A New Witness Added Onto the Claim", "Send First Demand for Subrogation Letter/ Package", "Investigation Pending", "Medical/ Police Report Status", "Close - Not Pursuing"] else 0
                         )
@@ -760,8 +885,6 @@ elif selected_screen == "Subrogation Workbench":
                             df_all.at[idx, 'Subro_User_Action'] = selected_action
                             df_all.to_csv(data_path, index=False)
                             st.success(f"✅ Action saved for Claim {row['Claim_Number']}")
-
-
 
                     with col4:
                         uploaded_files = st.file_uploader(
@@ -839,6 +962,46 @@ elif selected_screen == "Subrogation Workbench":
                             st.session_state["selected_claim"] = row["Claim_Number"]
                             st.session_state["view"] = "internal_notes"
                             st.rerun()
+
+                    claim_number = row["Claim_Number"]
+                    internal_pdf = os.path.join(PROCESSED_BASE_DIR, f"{claim_number}", "Internal_adjuster_notes_report.pdf")
+
+                    with st.expander(f"📋 View Highlights of Internal Report for Claim {claim_number}", expanded=False):
+                        if os.path.exists(internal_pdf):
+
+                            st.markdown("---")  # visual separator line
+
+                            with st.spinner("🔍 Generating summary highlights..."):
+                                summary_text = generate_highlights(internal_pdf)
+
+                                print("Generated Summary Text:", summary_text)  # Debug print
+
+                            if summary_text:
+                                # Replace **text** with <b>text</b> for bold formatting
+                                summary_text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', summary_text)
+
+                                st.markdown(
+                                    f"""
+                                    <div style="
+                                        background-color:#f9f9f9;
+                                        padding:15px;
+                                        border-radius:10px;
+                                        border:1px solid #ddd;
+                                        margin-top:10px;
+                                        white-space:pre-wrap;
+                                        line-height:0.5;
+                                        font-size:15px;
+                                        color:#333;
+                                    ">
+                                    {summary_text.replace('\n', '<br><br>')}
+                                    </div>
+                                    """,
+                                    unsafe_allow_html=True
+                                )
+                            else:
+                                st.info("⚠️ No highlights or summary found in the report.")
+                        else:
+                            st.warning(f"📄 No internal report found for Claim {claim_number}. Please generate it first.")
 
 
 st.markdown('</div>', unsafe_allow_html=True)
