@@ -251,7 +251,7 @@ if not st.session_state.logged_in:
 
 
 # -------------------- App Config and Style --------------------
-st.set_page_config(page_title="Litigation Dashboard", layout="wide")
+st.set_page_config(page_title="Subrogation Dashboard", layout="wide")
 
 # --- Universal CSS ---
 st.markdown("""
@@ -381,7 +381,7 @@ section[data-testid="stSidebar"] {
 st.markdown(f"""
 <div class="top-banner">
     <div class="banner-center">
-        Litigation Action & Insights Desk
+        Subrogation Transformation via AI-led Detection & Execution
     </div>
     <div class="banner-right">
         Welcome, {st.session_state.get("username", "User")}
