@@ -44,168 +44,356 @@ def login():
 if not st.session_state.logged_in:
     login()
     st.stop()
-st.markdown("""
-    <style>
-        /* Remove default padding & header/footer */
-        .block-container { padding-top: 0rem !important; }
-        header, footer { visibility: hidden !important; }
+# st.markdown("""
+#     <style>
+            
+#         /* Remove default padding & header/footer */
+#         .block-container { padding-top: 0rem !important; }
+#         header, footer { visibility: hidden !important; }
 
-        /* Fixed top banner */
-        .top-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(90deg, #004aad, #0073e6);
-            color: white;
-            padding: 0 40px 0 80px; /* <-- extra left padding to leave space for toggle */
-            z-index: 900;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
+#         /* Fixed top banner */
+#         .top-banner {
+#             position: fixed;
+#             top: 0;
+#             left: 0;
+#             width: 100%;
+#             height: 60px;
+#             display: flex;
+#             align-items: center;
+#             justify-content: space-between;
+#             background: linear-gradient(90deg, #004aad, #0073e6);
+#             color: white;
+#             padding: 0 40px 0 80px; /* <-- extra left padding to leave space for toggle */
+#             z-index: 900;
+#             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+#         }
 
-        /* Sidebar toggle (☰) always on top */
-        [data-testid="collapsedControl"] {
-            z-index: 1001 !important;
-        }
+#         /* Sidebar toggle (☰) always on top */
+#         [data-testid="collapsedControl"] {
+#             z-index: 1001 !important;
+#         }
 
-        /* Main content below banner */
-        .main-content {
-            margin-top: 70px !important;
-        }
+#         /* Main content below banner */
+#         .main-content {
+#             margin-top: 70px !important;
+#         }
 
-        /* Banner sections */
-        .banner-left img { height: 40px; }
-        .banner-center { font-size: 24px; font-weight: bold; text-align: center; flex: 1; }
-        .banner-right { font-size: 16px; font-weight: 500; }
-    </style>
-""", unsafe_allow_html=True)
+#         /* Banner sections */
+#         .banner-left img { height: 40px; }
+#         .banner-center { font-size: 24px; font-weight: bold; text-align: center; flex: 1; }
+#         .banner-right { font-size: 16px; font-weight: 500; }
+#     </style>
+# """, unsafe_allow_html=True)
 
-# Banner HTML
-st.markdown(f"""
-    <div class="top-banner">
-        <div class="banner-left">
-            <img src="exl logo.png" alt="Company Logo">
-        </div>
-        <div class="banner-center">
-            Subrogation Intelligence Platform
-        </div>
-        <div class="banner-right">
-            Welcome, {st.session_state.get("username", "User")}
-        </div>
-    </div>
-""", unsafe_allow_html=True)
-
-
+# # Banner HTML
+# st.markdown(f"""
+#     <div class="top-banner">
+#         <div class="banner-left">
+#             <img src="exl logo.png" alt="Company Logo">
+#         </div>
+#         <div class="banner-center">
+#             Subrogation Intelligence Platform
+#         </div>
+#         <div class="banner-right">
+#             Welcome, {st.session_state.get("username", "User")}
+#         </div>
+#     </div>
+# """, unsafe_allow_html=True)
 
 
-# # -------------------- Main Content --------------------
-# st.markdown('<div class="main-content">', unsafe_allow_html=True)
-# st.title("Dashboard Content")
-# st.write("Your app content goes here...")
-# st.markdown('</div>', unsafe_allow_html=True)
 
 
 
 # -------------------- App Config and Style --------------------
-st.set_page_config(page_title="Subrogation Dashboard", layout="wide")
+# st.set_page_config(page_title="Subrogation Dashboard", layout="wide")
 
-# Global CSS for banner + layout
+# # Global CSS for banner + layout
+# st.markdown("""
+#     <style>
+#         /* Remove Streamlit default header and padding */
+#         .block-container {
+#             padding-top: 0rem !important;
+#         }
+#         header, footer {
+#             visibility: hidden !important;
+#         }
+            
+
+#         /* ======================= */
+#         /* PERMANENT FIXED SIDEBAR */
+#         /* ======================= */
+
+            
+#             /* --- Hide and disable the sidebar collapse ("<<") button --- */
+
+#         /* Target the exact div shown in your screenshot */
+#         div[data-testid="stSidebarCollapseButton"] {
+#             display: none !important;           /* hide the container */
+#             visibility: hidden !important;
+#             pointer-events: none !important;
+#         }
+
+#         /* Additionally, ensure the button inside is disabled even if rendered */
+#         div[data-testid="stSidebarCollapseButton"] button {
+#             pointer-events: none !important;
+#             opacity: 0 !important;              /* make invisible */
+#             width: 0 !important;
+#             height: 0 !important;
+#             overflow: hidden !important;
+#             margin: 0 !important;
+#             padding: 0 !important;
+#             border: none !important;
+#         }
+
+#         /* Optional: fix sidebar to stay open */
+#         section[data-testid="stSidebar"] {
+#             transform: none !important;
+#             visibility: visible !important;
+#             width: 280px !important;
+#             position: fixed !important;
+#             top: 0 !important;
+#             left: 0 !important;
+#             height: 100vh !important;
+#             background-color: #F8F9FA !important;
+#             border-right: 1px solid #E0E0E0 !important;
+#             z-index: 1000 !important;
+#         }
+
+
+
+
+
+
+
+
+
+
+
+#         /* Fixed Top Banner */
+#         .top-banner {
+#             position: fixed;
+#             top: 0;
+#             left: 0;
+#             width: 100%;
+#             height: 70px;
+#             display: flex;
+#             align-items: center;
+#             justify-content: space-between;
+#             background: linear-gradient(90deg, #004aad, #0073e6);
+#             color: white;
+#             padding: 0 40px;
+#             z-index: 9999;
+#             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+#         }
+
+#         /* Left section (logo) */
+#         .banner-left img {
+#             height: 40px;
+#         }
+
+#         /* Center section (title) */
+#         .banner-center {
+#             position: absolute;
+#             left: 50%;
+#             transform: translateX(-50%);
+#             font-size: 26px;
+#             font-weight: 700;
+#             letter-spacing: 0.5px;
+#         }
+
+#         /* Right section (welcome text) */
+#         .banner-right {
+#             font-size: 16px;
+#             font-weight: 500;
+#         }
+
+#         /* Add space below banner so content is visible */
+#         .main-content {
+#             margin-top: 85px !important;
+#         }
+
+#         /* Sidebar look */
+#         section[data-testid="stSidebar"] {
+#             background-color: #F8F9FA !important;
+#             border-right: 1px solid #E0E0E0 !important;
+#         }
+#         /* Buttons - light theme */
+#         .stButton > button {
+#             background-color: #E3F2FD !important;  /* light blue */
+#             color: #0047AB !important;             /* dark blue text */
+#             border: 1px solid #B3E5FC !important;  /* subtle border */
+#             border-radius: 8px !important;
+#             padding: 0.5rem 1rem !important;
+#             font-weight: 500 !important;
+#             transition: all 0.3s ease !important;
+#         }
+
+#         .stButton > button:hover {
+#             background-color: #BBDEFB !important;  /* slightly darker on hover */
+#             color: #003580 !important;
+#             border-color: #90CAF9 !important;
+#         }
+
+#     </style>
+# """, unsafe_allow_html=True)
+
+# # -------------------- Top Banner --------------------
+# st.markdown(f"""
+#     <div class="top-banner">
+#         <div class="banner-center">
+#             Subrogation Transformation via AI-led Detection & Execution
+#         </div>
+#         <div class="banner-right">
+#             Welcome,  {st.session_state.get("username", "User")}
+#         </div>
+#     </div>
+# """, unsafe_allow_html=True)
+
+
+# -------------------- App Config and Style --------------------
+st.set_page_config(page_title="Litigation Dashboard", layout="wide")
+
+# --- Universal CSS ---
 st.markdown("""
-    <style>
-        /* Remove Streamlit default header and padding */
-        .block-container {
-            padding-top: 0rem !important;
-        }
-        header, footer {
-            visibility: hidden !important;
-        }
+<style>
 
-        /* Fixed Top Banner */
-        .top-banner {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: linear-gradient(90deg, #004aad, #0073e6);
-            color: white;
-            padding: 0 40px;
-            z-index: 9999;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-        }
+/* ======================= */
+/* GLOBAL BASE STYLES */
+/* ======================= */
+header[data-testid="stHeader"], footer {
+    visibility: hidden !important;
+    height: 0 !important;
+}
+html, body, [class*="css"] {
+    height: 100% !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+}
 
-        /* Left section (logo) */
-        .banner-left img {
-            height: 40px;
-        }
+/* ======================= */
+/* PERMANENT FIXED SIDEBAR */
+/* ======================= */
 
-        /* Center section (title) */
-        .banner-center {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 26px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
+    
+    /* --- Hide and disable the sidebar collapse ("<<") button --- */
 
-        /* Right section (welcome text) */
-        .banner-right {
-            font-size: 16px;
-            font-weight: 500;
-        }
+/* Target the exact div shown in your screenshot */
+div[data-testid="stSidebarCollapseButton"] {
+    display: none !important;           /* hide the container */
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
 
-        /* Add space below banner so content is visible */
-        .main-content {
-            margin-top: 85px !important;
-        }
+/* Additionally, ensure the button inside is disabled even if rendered */
+div[data-testid="stSidebarCollapseButton"] button {
+    pointer-events: none !important;
+    opacity: 0 !important;              /* make invisible */
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+}
 
-        /* Sidebar look */
-        section[data-testid="stSidebar"] {
-            background-color: #F8F9FA !important;
-            border-right: 1px solid #E0E0E0 !important;
-        }
-        /* Buttons - light theme */
-        .stButton > button {
-            background-color: #E3F2FD !important;  /* light blue */
-            color: #0047AB !important;             /* dark blue text */
-            border: 1px solid #B3E5FC !important;  /* subtle border */
-            border-radius: 8px !important;
-            padding: 0.5rem 1rem !important;
-            font-weight: 500 !important;
-            transition: all 0.3s ease !important;
-        }
+/* Optional: fix sidebar to stay open */
+section[data-testid="stSidebar"] {
+    transform: none !important;
+    visibility: visible !important;
+    width: 280px !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100vh !important;
+    background-color: #F8F9FA !important;
+    border-right: 1px solid #E0E0E0 !important;
+    z-index: 1000 !important;
+}
 
-        .stButton > button:hover {
-            background-color: #BBDEFB !important;  /* slightly darker on hover */
-            color: #003580 !important;
-            border-color: #90CAF9 !important;
-        }
 
-    </style>
+/* ======================= */
+/* FIXED TOP BANNER */
+/* ======================= */
+.top-banner {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(90deg, #185a9d, #0073e6);
+    color: white;
+    padding: 0 40px 0 320px; /* offset for sidebar width */
+    z-index: 900;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Banner text styling */
+.banner-center {
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+}
+.banner-right {
+    font-size: 16px;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* ======================= */
+/* MAIN CONTENT AREA */
+/* ======================= */
+.block-container {
+    position: relative !important;
+    padding-top: 90px !important; /* space below banner */
+    margin-left: 280px !important; /* permanent sidebar offset */
+    width: calc(100vw - 280px) !important;
+    box-sizing: border-box !important;
+    overflow-x: hidden !important;
+}
+
+/* ======================= */
+/* BUTTON STYLES */
+/* ======================= */
+.stButton > button {
+    background-color: #E3F2FD !important;
+    color: #0047AB !important;
+    border: 1px solid #E3F2FD !important;
+    border-radius: 10px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 500 !important;
+    transition: all 0.3s ease !important;
+}
+.stButton > button:hover {
+    background-color: #BBDEFB !important;
+    color: #003580 !important;
+    border-color: #90CAF9 !important;
+}
+
+
+
+</style>
 """, unsafe_allow_html=True)
-
-# -------------------- Top Banner --------------------
+# --- TOP BANNER HTML ---
 st.markdown(f"""
-    <div class="top-banner">
-        <div class="banner-left">
-            <img src="exl logo.png" alt="Company Logo">
-        </div>
-        <div class="banner-center">
-            Subrogation Transformation via AI-led Detection & Execution
-        </div>
-        <div class="banner-right">
-            Welcome,  {st.session_state.get("username", "User")}
-        </div>
+<div class="top-banner">
+    <div class="banner-center">
+        Litigation Action & Insights Desk
     </div>
+    <div class="banner-right">
+        Welcome, {st.session_state.get("username", "User")}
+    </div>
+</div>
 """, unsafe_allow_html=True)
+
+
+
+
+
+
 
 # -------------------- Main Content Wrapper --------------------
 st.markdown('<div class="main-content">', unsafe_allow_html=True)
@@ -227,13 +415,7 @@ with st.sidebar:
         ]
     )
 
-    # st.markdown("---")
-    # st.subheader("Settings")
-    # if st.button("Reset App"):
-    #     clear_directory(DIR1)
-    #     clear_directory(DIR2)
-    #     st.sidebar.success("All data cleared successfully!")
-    #     st.rerun()
+
 
 
 # -------------------- Load Data --------------------
